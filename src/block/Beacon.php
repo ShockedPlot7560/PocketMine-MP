@@ -120,18 +120,20 @@ final class Beacon extends Transparent{
 			$radius = (10 * $beaconLevel) + 10;
 			$effectDuration = 9 + (2 * $beaconLevel);
 
+			$world = $this->position->getWorld();
+			$aabb = (new AxisAlignedBB(0, 0, 0, 1, $world->getMaxY(), 1))->offset($this->position->x, 0, $this->position->z)->expand($radius, 0, $radius);
 			if($primaryE === $secondaryE){
-				foreach($this->position->getWorld()->getPlayers() as $player){
-					if($player->getPosition()->distance($this->position) <= $radius){
-						$player->getEffects()->add(new EffectInstance($effect, $effectDuration * 20, 1));
+				foreach($world->getNearbyEntities($aabb) as $entity){
+					if($entity instanceof Player){
+						$entity->getEffects()->add(new EffectInstance($secondaryE, $effectDuration * 20, 1));
 					}
 				}
 			}else{
-				foreach($this->position->getWorld()->getPlayers() as $player){
-					if($player->getPosition()->distance($this->position) <= $radius){
+				foreach($world->getNearbyEntities($aabb) as $entity){
+					if($entity instanceof Player){
 						foreach([$primaryE, $secondaryE] as $effect){
 							if($effect instanceof Effect){
-								$player->getEffects()->add(new EffectInstance($effect, $effectDuration * 20, 0));
+								$entity->getEffects()->add(new EffectInstance($effect, $effectDuration * 20, 0));
 							}
 						}
 					}
