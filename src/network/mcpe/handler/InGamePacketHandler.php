@@ -26,7 +26,6 @@ namespace pocketmine\network\mcpe\handler;
 use pocketmine\block\BaseSign;
 use pocketmine\block\Beacon;
 use pocketmine\block\ItemFrame;
-use pocketmine\block\tile\Beacon as TileBeacon;
 use pocketmine\block\utils\SignText;
 use pocketmine\entity\animation\ConsumingItemAnimation;
 use pocketmine\entity\InvalidSkinException;

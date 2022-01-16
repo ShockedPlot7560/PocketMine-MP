@@ -25,6 +25,7 @@ namespace pocketmine\block;
 
 use InvalidArgumentException;
 use pocketmine\block\inventory\BeaconInventory;
+use pocketmine\block\tile\Beacon as TileBeacon;
 use pocketmine\data\bedrock\EffectIdMap;
 use pocketmine\entity\effect\Effect;
 use pocketmine\entity\effect\EffectInstance;
