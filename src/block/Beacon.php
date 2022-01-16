@@ -31,6 +31,7 @@ use pocketmine\data\bedrock\EffectIds;
 use pocketmine\entity\effect\Effect;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\item\Item;
+use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 
@@ -148,6 +149,9 @@ final class Beacon extends Transparent{
 			$world = $this->position->getWorld();
 			$aabb = (new AxisAlignedBB(0, 0, 0, 1, $world->getMaxY(), 1))->offset($this->position->x, 0, $this->position->z)->expand($radius, 0, $radius);
 			if($primaryE === $secondaryE){
+				if($secondaryE === null){
+					return;
+				}
 				foreach($world->getNearbyEntities($aabb) as $entity){
 					if($entity instanceof Player){
 						$entity->getEffects()->add(new EffectInstance($secondaryE, $effectDuration * 20, 1));
