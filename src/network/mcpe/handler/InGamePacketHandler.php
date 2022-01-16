@@ -636,8 +636,12 @@ class InGamePacketHandler extends PacketHandler{
 
 			$this->session->getLogger()->debug("Invalid sign update data: " . base64_encode($packet->nbt->getEncodedNbt()));
 		}elseif($block instanceof Beacon){
-			$block->setPrimaryEffect($nbt->getInt("primary", 0));
-			$block->setSecondaryEffect($nbt->getInt("secondary", 0));
+			try{
+				$block->setPrimaryEffect($nbt->getInt("primary", 0));
+				$block->setSecondaryEffect($nbt->getInt("secondary", 0));
+			}catch(\InvalidArgumentException $e){
+				throw PacketHandlingException::wrap($e);
+			}
 			$world = $block->getPosition()->getWorld();
 			$world->setBlock($pos, $block);
 			$world->scheduleDelayedBlockUpdate($pos, 20);

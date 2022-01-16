@@ -28,6 +28,7 @@ use pocketmine\block\inventory\BeaconInventory;
 use pocketmine\block\tile\Beacon as TileBeacon;
 use pocketmine\data\bedrock\EffectIdMap;
 use pocketmine\entity\effect\Effect;
+use pocketmine\entity\entity\EffectIds;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\item\Item;
 use pocketmine\math\Vector3;
@@ -40,6 +41,18 @@ final class Beacon extends Transparent{
 		BlockLegacyIds::DIAMOND_BLOCK => true,
 		BlockLegacyIds::EMERALD_BLOCK => true
 		//TODO netherite block
+	];
+
+	private const ALLOWED_PRIMARY_EFFECTS = [
+		EffectIds::HASTE => true,
+		EffectIds::JUMP_BOOST => true,
+		EffectIds::RESISTANCE => true,
+		EffectIds::SPEED => true,
+		EffectIds::STRENGTH => true
+	];
+
+	private const ALLOWED_SECONDARY_EFFECTS = [
+		EffectIds::REGENERATION => true
 	];
 
 	private int $primaryEffect;
@@ -67,8 +80,14 @@ final class Beacon extends Transparent{
 		return $this->primaryEffect;
 	}
 
-	/** @return $this */
+	/** 
+	 * @return $this
+	 * @throws \InvalidArgumentException
+	 */
 	public function setPrimaryEffect(int $primaryEffect) : self{
+		if(!isset(self::ALLOWED_PRIMARY_EFFECTS[$primaryEffect])){
+			throw new \InvalidArgumentException("Effect ID \"$primaryEffect\" is not allowed in the primary effect");
+		}
 		$this->primaryEffect = $primaryEffect;
 		return $this;
 	}
@@ -77,8 +96,14 @@ final class Beacon extends Transparent{
 		return $this->secondaryEffect;
 	}
 
-	/** @return $this */
+	/**
+	 * @return $this
+	 * @throws \InvalidArgumentException
+	 */
 	public function setSecondaryEffect(int $secondaryEffect) : self{
+		if(!isset(self::ALLOWED_PRIMARY_EFFECTS[$secondaryEffect]) || !isset(self::ALLOWED_SECONDARY_EFFECTS[$secondaryEffect])){
+			throw new \InvalidArgumentException("Effect ID \"$secondaryEffect\" is not allowed in the secondary effect");
+		}
 		$this->secondaryEffect = $secondaryEffect;
 		return $this;
 	}
