@@ -80,7 +80,7 @@ final class Beacon extends Transparent{
 		return $this->primaryEffect;
 	}
 
-	/** 
+	/**
 	 * @return $this
 	 * @throws \InvalidArgumentException
 	 */
