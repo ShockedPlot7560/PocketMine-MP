@@ -25,14 +25,12 @@ namespace pocketmine\block;
 
 use InvalidArgumentException;
 use pocketmine\block\inventory\BeaconInventory;
-use pocketmine\block\tile\Beacon as TileBeacon;
 use pocketmine\data\bedrock\EffectIdMap;
 use pocketmine\entity\effect\Effect;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\item\Item;
 use pocketmine\math\Vector3;
 use pocketmine\player\Player;
-use function isset;
 
 final class Beacon extends Transparent{
 	private const ALLOWED_BLOCK_IDS = [
