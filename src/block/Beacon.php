@@ -137,7 +137,7 @@ final class Beacon extends Transparent{
 			$effectDuration = 9 + (2 * $beaconLevel);
 
 			$world = $this->position->getWorld();
-			$aabb = (new AxisAlignedBB(0, 0, 0, 1, $world->getMaxY(), 1))->offset($this->position->x, 0, $this->position->z)->expand($radius, 0, $radius);
+			$aabb = $this->getCollisionBoxes()[0]->expandedCopy($radius, $radius, $radius)->addCoord(0, $world->getMaxY(), 0);
 			if($this->primaryEffect === $this->secondaryEffect){
 				foreach($world->getNearbyEntities($aabb) as $entity){
 					if($entity instanceof Player){
