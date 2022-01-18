@@ -147,9 +147,7 @@ final class Beacon extends Transparent{
 				foreach($world->getNearbyEntities($aabb) as $entity){
 					if($entity instanceof Player){
 						foreach($effects as $effect){
-							if($effect instanceof Effect){
-								$entity->getEffects()->add(new EffectInstance($effect, $effectDuration * 20, 0));
-							}
+							$entity->getEffects()->add(new EffectInstance($effect, $effectDuration * 20, 0));
 						}
 					}
 				}
