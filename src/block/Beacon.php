@@ -47,20 +47,8 @@ final class Beacon extends Transparent{
 		BlockLegacyIds::IRON_BLOCK => true,
 		BlockLegacyIds::GOLD_BLOCK => true,
 		BlockLegacyIds::DIAMOND_BLOCK => true,
-		BlockLegacyIds::EMERALD_BLOCK => true
+		BlockLegacyIds::EMERALD_BLOCK = true
 		//TODO netherite block
-	];
-
-	private const ALLOWED_PRIMARY_EFFECTS = [
-		EffectIds::HASTE => true,
-		EffectIds::JUMP_BOOST => true,
-		EffectIds::RESISTANCE => true,
-		EffectIds::SPEED => true,
-		EffectIds::STRENGTH => true
-	];
-
-	private const ALLOWED_SECONDARY_EFFECTS = [
-		EffectIds::REGENERATION => true
 	];
 
 	private Effect $primaryEffect;
