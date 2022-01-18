@@ -27,6 +27,7 @@ use pocketmine\block\BaseSign;
 use pocketmine\block\Beacon;
 use pocketmine\block\ItemFrame;
 use pocketmine\block\utils\SignText;
+use pocketmine\data\bedrock\EffectIdMap;
 use pocketmine\entity\animation\ConsumingItemAnimation;
 use pocketmine\entity\InvalidSkinException;
 use pocketmine\event\player\PlayerEditBookEvent;
@@ -636,12 +637,14 @@ class InGamePacketHandler extends PacketHandler{
 
 			$this->session->getLogger()->debug("Invalid sign update data: " . base64_encode($packet->nbt->getEncodedNbt()));
 		}elseif($block instanceof Beacon){
-			try{
-				$block->setPrimaryEffect($nbt->getInt("primary", 0));
-				$block->setSecondaryEffect($nbt->getInt("secondary", 0));
-			}catch(\InvalidArgumentException $e){
-				throw PacketHandlingException::wrap($e);
+			$effectIdMap = EffectIdMap::getInstance();
+			$primaryEffectId = $nbt->getInt("primary", 0);
+			$primaryEffect = $effectIdMap->fromId($primaryEffectId);
+			if($primaryEffect === null){
+				throw new PacketHandlingException("Invalid primary effect $primaryEffectId");
 			}
+			$block->setPrimaryEffect($primaryEffect);
+			$block->setSecondaryEffect($effectIdMap->fromId($nbt->getInt("secondary", 0)));
 			$world = $block->getPosition()->getWorld();
 			$world->setBlock($pos, $block);
 			$world->scheduleDelayedBlockUpdate($pos, 20);
