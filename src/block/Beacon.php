@@ -47,7 +47,7 @@ final class Beacon extends Transparent{
 		BlockLegacyIds::IRON_BLOCK => true,
 		BlockLegacyIds::GOLD_BLOCK => true,
 		BlockLegacyIds::DIAMOND_BLOCK => true,
-		BlockLegacyIds::EMERALD_BLOCK = true
+		BlockLegacyIds::EMERALD_BLOCK => true
 		//TODO netherite block
 	];
 
