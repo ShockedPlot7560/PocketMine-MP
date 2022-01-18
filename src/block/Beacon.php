@@ -31,11 +31,19 @@ use pocketmine\data\bedrock\EffectIdMap;
 use pocketmine\entity\effect\Effect;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\item\Item;
+use pocketmine\item\ItemIds;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 
 final class Beacon extends Transparent{
+	public const ALLOWED_ITEM_IDS = [
+		ItemIds::IRON_INGOT => true,
+		ItemIds::GOLD_INGOT => true,
+		ItemIds::DIAMOND => true,
+		ItemIds::EMERALD => true
+	];
+
 	private const ALLOWED_BLOCK_IDS = [
 		BlockLegacyIds::IRON_BLOCK => true,
 		BlockLegacyIds::GOLD_BLOCK => true,
