@@ -28,6 +28,7 @@ use pocketmine\block\inventory\BeaconInventory;
 use pocketmine\block\tile\Beacon as TileBeacon;
 use pocketmine\block\utils\InvalidBlockStateException;
 use pocketmine\data\bedrock\EffectIdMap;
+use pocketmine\data\bedrock\EffectIds;
 use pocketmine\entity\effect\Effect;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\item\Item;
