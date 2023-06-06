@@ -30,7 +30,6 @@ use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 use PhpCsFixer\Tokenizer\Tokens;
 use function defined;
 use const T_CATCH;
-use const T_DECLARE;
 use const T_DO;
 use const T_ELSE;
 use const T_ELSEIF;
@@ -45,9 +44,8 @@ use const T_SWITCH;
 use const T_TRY;
 use const T_WHILE;
 
-class NoSpaceBeforeBracesOnControlFixer extends AbstractFixer{
+class NoSpaceBeforeBracesOnControlFixer extends AbstractFixer {
 	private const STRUCTURE_TOKENS = [
-		T_DECLARE,
 		T_DO,
 		T_ELSE,
 		T_ELSEIF,
