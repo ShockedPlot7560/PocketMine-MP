@@ -53,6 +53,7 @@
       "symfony/filesystem": "^6.2"
    },
    "require-dev": {
+      "friendsofphp/php-cs-fixer": "^3.17",
       "phpstan/phpstan": "1.10.15",
       "phpstan/phpstan-phpunit": "^1.1.0",
       "phpstan/phpstan-strict-rules": "^1.2.0",
@@ -69,7 +70,8 @@
    "autoload-dev": {
       "psr-4": {
          "pocketmine\\": "tests/phpunit/",
-         "pocketmine\\phpstan\\rules\\": "tests/phpstan/rules"
+         "pocketmine\\phpstan\\rules\\": "tests/phpstan/rules",
+         "pocketmine\\csfixer\\rules\\": "tests/csfixer/rules"
       }
    },
    "config": {

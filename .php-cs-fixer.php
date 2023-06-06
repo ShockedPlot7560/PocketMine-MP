@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/vendor/autoload.php';
+
 $finder = PhpCsFixer\Finder::create()
 	->in(__DIR__ . '/src')
 	->in(__DIR__ . '/build')
@@ -10,7 +12,11 @@ $finder = PhpCsFixer\Finder::create()
 
 return (new PhpCsFixer\Config)
 	->setRiskyAllowed(true)
+	->registerCustomFixers([
+		new pocketmine\csfixer\rules\NoSpaceBeforeBracesOnControlFixer()
+	])
 	->setRules([
+		'Pocketmine/no_space_before_braces_on_control' => true,
 		'align_multiline_comment' => [
 			'comment_type' => 'phpdocs_only'
 		],
@@ -115,6 +121,11 @@ BODY,
 		'single_import_per_statement' => true,
 		'strict_param' => true,
 		'unary_operator_spaces' => true,
+		'control_structure_braces' => true,
+		'curly_braces_position' => [
+			'classes_opening_brace' => 'same_line',
+			'functions_opening_brace' => 'same_line',
+		]
 	])
 	->setFinder($finder)
 	->setIndent("\t")
