@@ -68,6 +68,7 @@ use function atan2;
 use function ceil;
 use function count;
 use function floor;
+use function ksort;
 use function lcg_value;
 use function max;
 use function min;
@@ -76,9 +77,21 @@ use function mt_rand;
 use function round;
 use function sqrt;
 use const M_PI;
+use const SORT_NUMERIC;
 
 abstract class Living extends Entity{
 	protected const DEFAULT_BREATH_TICKS = 300;
+
+	/**
+	 * The default knockback multiplier when an entity is hit by another entity.
+	 * Larger values knock the entity back with increased velocity.
+	 */
+	public const DEFAULT_KNOCKBACK_FORCE = 0.4;
+	/**
+	 * Limit of an entity's vertical knockback velocity when hit by another entity. Without this limit, the entity
+	 * may be knocked far up into the air with large knockback forces.
+	 */
+	public const DEFAULT_KNOCKBACK_VERTICAL_LIMIT = 0.4;
 
 	private const TAG_LEGACY_HEALTH = "HealF"; //TAG_Float
 	private const TAG_HEALTH = "Health"; //TAG_Float
@@ -120,6 +133,10 @@ abstract class Living extends Entity{
 	protected function getInitialGravity() : float{ return 0.08; }
 
 	abstract public function getName() : string;
+
+	public function canBeRenamed() : bool{
+		return true;
+	}
 
 	protected function initEntity(CompoundTag $nbt) : void{
 		parent::initEntity($nbt);
@@ -217,6 +234,7 @@ abstract class Living extends Entity{
 	public function setSneaking(bool $value = true) : void{
 		$this->sneaking = $value;
 		$this->networkPropertiesDirty = true;
+		$this->recalculateSize();
 	}
 
 	public function isSprinting() : bool{
@@ -258,6 +276,8 @@ abstract class Living extends Entity{
 		if($this->isSwimming() || $this->isGliding()){
 			$width = $size->getWidth();
 			$this->setSize((new EntitySizeInfo($width, $width, $width * 0.9))->scale($this->getScale()));
+		}elseif($this->isSneaking()){
+			$this->setSize((new EntitySizeInfo(3 / 4 * $size->getHeight(), $size->getWidth(), 3 / 4 * $size->getEyeHeight()))->scale($this->getScale()));
 		}else{
 			$this->setSize($size->scale($this->getScale()));
 		}
@@ -484,14 +504,16 @@ abstract class Living extends Entity{
 	public function damageArmor(float $damage) : void{
 		$durabilityRemoved = (int) max(floor($damage / 4), 1);
 
-		$armor = $this->armorInventory->getContents(true);
-		foreach($armor as $item){
+		$armor = $this->armorInventory->getContents();
+		foreach($armor as $slotId => $item){
 			if($item instanceof Armor){
+				$oldItem = clone $item;
 				$this->damageItem($item, $durabilityRemoved);
+				if(!$item->equalsExact($oldItem)){
+					$this->armorInventory->setItem($slotId, $item);
+				}
 			}
 		}
-
-		$this->armorInventory->setContents($armor);
 	}
 
 	private function damageItem(Durable $item, int $durabilityRemoved) : void{
@@ -502,7 +524,7 @@ abstract class Living extends Entity{
 	}
 
 	public function attack(EntityDamageEvent $source) : void{
-		if($this->noDamageTicks > 0){
+		if($this->noDamageTicks > 0 && $source->getCause() !== EntityDamageEvent::CAUSE_SUICIDE){
 			$source->cancel();
 		}
 
@@ -515,7 +537,9 @@ abstract class Living extends Entity{
 			$source->cancel();
 		}
 
-		$this->applyDamageModifiers($source);
+		if($source->getCause() !== EntityDamageEvent::CAUSE_SUICIDE){
+			$this->applyDamageModifiers($source);
+		}
 
 		if($source instanceof EntityDamageByEntityEvent && (
 			$source->getCause() === EntityDamageEvent::CAUSE_BLOCK_EXPLOSION ||
@@ -533,26 +557,33 @@ abstract class Living extends Entity{
 			return;
 		}
 
-		$this->attackTime = $source->getAttackCooldown();
+		if($this->attackTime <= 0){
+			//this logic only applies if the entity was cold attacked
 
-		if($source instanceof EntityDamageByChildEntityEvent){
-			$e = $source->getChild();
-			if($e !== null){
-				$motion = $e->getMotion();
-				$this->knockBack($motion->x, $motion->z, $source->getKnockBack());
+			$this->attackTime = $source->getAttackCooldown();
+
+			if($source instanceof EntityDamageByChildEntityEvent){
+				$e = $source->getChild();
+				if($e !== null){
+					$motion = $e->getMotion();
+					$this->knockBack($motion->x, $motion->z, $source->getKnockBack(), $source->getVerticalKnockBackLimit());
+				}
+			}elseif($source instanceof EntityDamageByEntityEvent){
+				$e = $source->getDamager();
+				if($e !== null){
+					$deltaX = $this->location->x - $e->location->x;
+					$deltaZ = $this->location->z - $e->location->z;
+					$this->knockBack($deltaX, $deltaZ, $source->getKnockBack(), $source->getVerticalKnockBackLimit());
+				}
 			}
-		}elseif($source instanceof EntityDamageByEntityEvent){
-			$e = $source->getDamager();
-			if($e !== null){
-				$deltaX = $this->location->x - $e->location->x;
-				$deltaZ = $this->location->z - $e->location->z;
-				$this->knockBack($deltaX, $deltaZ, $source->getKnockBack());
+
+			if($this->isAlive()){
+				$this->doHitAnimation();
 			}
 		}
 
 		if($this->isAlive()){
 			$this->applyPostDamageEffects($source);
-			$this->doHitAnimation();
 		}
 	}
 
@@ -560,7 +591,7 @@ abstract class Living extends Entity{
 		$this->broadcastAnimation(new HurtAnimation($this));
 	}
 
-	public function knockBack(float $x, float $z, float $force = 0.4, ?float $verticalLimit = 0.4) : void{
+	public function knockBack(float $x, float $z, float $force = self::DEFAULT_KNOCKBACK_FORCE, ?float $verticalLimit = self::DEFAULT_KNOCKBACK_VERTICAL_LIMIT) : void{
 		$f = sqrt($x * $x + $z * $z);
 		if($f <= 0){
 			return;
@@ -637,9 +668,12 @@ abstract class Living extends Entity{
 			}
 
 			foreach($this->armorInventory->getContents() as $index => $item){
+				$oldItem = clone $item;
 				if($item->onTickWorn($this)){
 					$hasUpdate = true;
-					$this->armorInventory->setItem($index, $item);
+					if(!$item->equalsExact($oldItem)){
+						$this->armorInventory->setItem($index, $item);
+					}
 				}
 			}
 		}
@@ -851,8 +885,30 @@ abstract class Living extends Entity{
 	protected function syncNetworkData(EntityMetadataCollection $properties) : void{
 		parent::syncNetworkData($properties);
 
-		$properties->setByte(EntityMetadataProperties::POTION_AMBIENT, $this->effectManager->hasOnlyAmbientEffects() ? 1 : 0);
-		$properties->setInt(EntityMetadataProperties::POTION_COLOR, Binary::signInt($this->effectManager->getBubbleColor()->toARGB()));
+		$visibleEffects = [];
+		foreach ($this->effectManager->all() as $effect) {
+			if (!$effect->isVisible() || !$effect->getType()->hasBubbles()) {
+				continue;
+			}
+			$visibleEffects[EffectIdMap::getInstance()->toId($effect->getType())] = $effect->isAmbient();
+		}
+
+		//TODO: HACK! the client may not be able to identify effects if they are not sorted.
+		ksort($visibleEffects, SORT_NUMERIC);
+
+		$effectsData = 0;
+		$packedEffectsCount = 0;
+		foreach ($visibleEffects as $effectId => $isAmbient) {
+			$effectsData = ($effectsData << 7) |
+				(($effectId & 0x3f) << 1) | //Why not use 7 bits instead of only 6? mojang...
+				($isAmbient ? 1 : 0);
+
+			if (++$packedEffectsCount >= 8) {
+				break;
+			}
+		}
+		$properties->setLong(EntityMetadataProperties::VISIBLE_MOB_EFFECTS, $effectsData);
+
 		$properties->setShort(EntityMetadataProperties::AIR, $this->breathTicks);
 		$properties->setShort(EntityMetadataProperties::MAX_AIR, $this->maxBreathTicks);
 

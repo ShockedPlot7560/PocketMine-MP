@@ -31,6 +31,7 @@ use DaveRandom\CallbackValidator\CallbackType;
 use pocketmine\entity\Location;
 use pocketmine\errorhandler\ErrorTypeToStringMap;
 use pocketmine\math\Vector3;
+use pocketmine\thread\ThreadCrashInfoFrame;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use function array_combine;
@@ -79,7 +80,7 @@ use function preg_match_all;
 use function preg_replace;
 use function shell_exec;
 use function spl_object_id;
-use function str_ends_with;
+use function str_contains;
 use function str_pad;
 use function str_split;
 use function str_starts_with;
@@ -120,7 +121,7 @@ final class Utils{
 	 */
 	public static function getNiceClosureName(\Closure $closure) : string{
 		$func = new \ReflectionFunction($closure);
-		if(!str_ends_with($func->getName(), '{closure}')){
+		if(!str_contains($func->getName(), '{closure')){
 			//closure wraps a named function, can be done with reflection or fromCallable()
 			//isClosure() is useless here because it just tells us if $func is reflecting a Closure object
 
@@ -172,16 +173,17 @@ final class Utils{
 	}
 
 	/**
-	 * @phpstan-template T of object
+	 * @phpstan-template TKey of array-key
+	 * @phpstan-template TValue of object
 	 *
 	 * @param object[] $array
-	 * @phpstan-param T[] $array
+	 * @phpstan-param array<TKey, TValue> $array
 	 *
 	 * @return object[]
-	 * @phpstan-return T[]
+	 * @phpstan-return array<TKey, TValue>
 	 */
 	public static function cloneObjectArray(array $array) : array{
-		/** @phpstan-var \Closure(T) : T $callback */
+		/** @phpstan-var \Closure(TValue) : TValue $callback */
 		$callback = self::cloneCallback();
 		return array_map($callback, $array);
 	}
@@ -467,6 +469,30 @@ final class Utils{
 			$messages[] = "#$i " . (isset($trace[$i]["file"]) ? Filesystem::cleanPath($trace[$i]["file"]) : "") . "(" . (isset($trace[$i]["line"]) ? $trace[$i]["line"] : "") . "): " . (isset($trace[$i]["class"]) ? $trace[$i]["class"] . (($trace[$i]["type"] === "dynamic" || $trace[$i]["type"] === "->") ? "->" : "::") : "") . $trace[$i]["function"] . "(" . Utils::printable($params) . ")";
 		}
 		return $messages;
+	}
+
+	/**
+	 * Similar to {@link Utils::printableTrace()}, but associates metadata such as file and line number with each frame.
+	 * This is used to transmit thread-safe information about crash traces to the main thread when a thread crashes.
+	 *
+	 * @param mixed[][] $rawTrace
+	 * @phpstan-param list<array<string, mixed>> $rawTrace
+	 *
+	 * @return ThreadCrashInfoFrame[]
+	 */
+	public static function printableTraceWithMetadata(array $rawTrace, int $maxStringLength = 80) : array{
+		$printableTrace = self::printableTrace($rawTrace, $maxStringLength);
+		$safeTrace = [];
+		foreach($printableTrace as $frameId => $printableFrame){
+			$rawFrame = $rawTrace[$frameId];
+			$safeTrace[$frameId] = new ThreadCrashInfoFrame(
+				$printableFrame,
+				$rawFrame["file"] ?? "unknown",
+				$rawFrame["line"] ?? 0
+			);
+		}
+
+		return $safeTrace;
 	}
 
 	/**

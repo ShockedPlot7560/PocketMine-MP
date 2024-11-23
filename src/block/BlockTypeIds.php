@@ -562,10 +562,10 @@ final class BlockTypeIds{
 	public const WEIGHTED_PRESSURE_PLATE_HEAVY = 10532;
 	public const WEIGHTED_PRESSURE_PLATE_LIGHT = 10533;
 	public const WHEAT = 10534;
-
+	public const BUDDING_AMETHYST = 10535;
 	public const WHITE_TULIP = 10536;
 	public const WOOL = 10537;
-
+	public const AMETHYST_CLUSTER = 10538;
 	public const GLAZED_TERRACOTTA = 10539;
 	public const AMETHYST = 10540;
 	public const ANCIENT_DEBRIS = 10541;
@@ -718,8 +718,55 @@ final class BlockTypeIds{
 	public const REINFORCED_DEEPSLATE = 10688;
 	public const CAVE_VINES = 10689;
 	public const GLOW_LICHEN = 10690;
+	public const CHERRY_BUTTON = 10691;
+	public const CHERRY_DOOR = 10692;
+	public const CHERRY_FENCE = 10693;
+	public const CHERRY_FENCE_GATE = 10694;
+	public const CHERRY_LEAVES = 10695;
+	public const CHERRY_LOG = 10696;
+	public const CHERRY_PLANKS = 10697;
+	public const CHERRY_PRESSURE_PLATE = 10698;
+	public const CHERRY_SAPLING = 10699;
+	public const CHERRY_SIGN = 10700;
+	public const CHERRY_SLAB = 10701;
+	public const CHERRY_STAIRS = 10702;
+	public const CHERRY_TRAPDOOR = 10703;
+	public const CHERRY_WALL_SIGN = 10704;
+	public const CHERRY_WOOD = 10705;
+	public const SMALL_DRIPLEAF = 10706;
+	public const BIG_DRIPLEAF_HEAD = 10707;
+	public const BIG_DRIPLEAF_STEM = 10708;
+	public const PINK_PETALS = 10709;
+	public const CRIMSON_ROOTS = 10710;
+	public const WARPED_ROOTS = 10711;
+	public const CHISELED_BOOKSHELF = 10712;
+	public const TORCHFLOWER = 10713;
+	public const TORCHFLOWER_CROP = 10714;
+	public const PITCHER_PLANT = 10715;
+	public const PITCHER_CROP = 10716;
+	public const DOUBLE_PITCHER_CROP = 10717;
+	public const CAMPFIRE = 10718;
+	public const SOUL_CAMPFIRE = 10719;
+	public const TUFF_SLAB = 10720;
+	public const TUFF_STAIRS = 10721;
+	public const TUFF_WALL = 10722;
+	public const CHISELED_TUFF = 10723;
+	public const TUFF_BRICKS = 10724;
+	public const TUFF_BRICK_SLAB = 10725;
+	public const TUFF_BRICK_STAIRS = 10726;
+	public const TUFF_BRICK_WALL = 10727;
+	public const CHISELED_TUFF_BRICKS = 10728;
+	public const POLISHED_TUFF = 10729;
+	public const POLISHED_TUFF_SLAB = 10730;
+	public const POLISHED_TUFF_STAIRS = 10731;
+	public const POLISHED_TUFF_WALL = 10732;
+	public const COPPER_BULB = 10733;
+	public const COPPER_DOOR = 10734;
+	public const COPPER_TRAPDOOR = 10735;
+	public const CHISELED_COPPER = 10736;
+	public const COPPER_GRATE = 10737;
 
-	public const FIRST_UNUSED_BLOCK_ID = 10691;
+	public const FIRST_UNUSED_BLOCK_ID = 10738;
 
 	private static int $nextDynamicId = self::FIRST_UNUSED_BLOCK_ID;
 

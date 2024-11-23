@@ -31,6 +31,7 @@ use pocketmine\utils\DestructorCallbackTrait;
 use pocketmine\utils\ObjectSet;
 use function array_search;
 use function count;
+use function spl_object_id;
 use function usort;
 
 class CraftingManager{
@@ -87,8 +88,8 @@ class CraftingManager{
 		$this->recipeRegisteredCallbacks = new ObjectSet();
 		$this->recipeUnregisteredCallbacks = new ObjectSet();
 
-		foreach(FurnaceType::getAll() as $furnaceType){
-			$this->furnaceRecipeManagers[$furnaceType->id()] = new FurnaceRecipeManager();
+		foreach(FurnaceType::cases() as $furnaceType){
+			$this->furnaceRecipeManagers[spl_object_id($furnaceType)] = new FurnaceRecipeManager();
 		}
 
 		$recipeRegisteredCallbacks = $this->recipeRegisteredCallbacks;
@@ -193,7 +194,7 @@ class CraftingManager{
 	}
 
 	public function getFurnaceRecipeManager(FurnaceType $furnaceType) : FurnaceRecipeManager{
-		return $this->furnaceRecipeManagers[$furnaceType->id()];
+		return $this->furnaceRecipeManagers[spl_object_id($furnaceType)];
 	}
 
 	/**
