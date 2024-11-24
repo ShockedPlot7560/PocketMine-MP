@@ -91,7 +91,8 @@ interface RuntimeDataDescriber extends RuntimeEnumDescriber{
 
 	/**
 	 * @phpstan-template T of \UnitEnum
-	 * @phpstan-param T $case
+	 * @phpstan-param T &$case
+	 * @phpstan-param-out T $case
 	 */
 	public function enum(\UnitEnum &$case) : void;
 

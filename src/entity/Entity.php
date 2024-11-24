@@ -35,6 +35,7 @@ use pocketmine\event\entity\EntityMotionEvent;
 use pocketmine\event\entity\EntityRegainHealthEvent;
 use pocketmine\event\entity\EntitySpawnEvent;
 use pocketmine\event\entity\EntityTeleportEvent;
+use pocketmine\item\Item;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
 use pocketmine\math\Vector2;
@@ -250,6 +251,14 @@ abstract class Entity{
 
 	public function isNameTagAlwaysVisible() : bool{
 		return $this->alwaysShowNameTag;
+	}
+
+	/**
+	 * Returns whether players can rename this entity using a name tag.
+	 * Note that plugins can still name entities using setNameTag().
+	 */
+	public function canBeRenamed() : bool{
+		return false;
 	}
 
 	public function setNameTag(string $name) : void{
@@ -792,7 +801,7 @@ abstract class Entity{
 	}
 
 	protected function broadcastMotion() : void{
-		NetworkBroadcastUtils::broadcastPackets($this->hasSpawned, [SetActorMotionPacket::create($this->id, $this->getMotion())]);
+		NetworkBroadcastUtils::broadcastPackets($this->hasSpawned, [SetActorMotionPacket::create($this->id, $this->getMotion(), tick: 0)]);
 	}
 
 	public function getGravity() : float{
@@ -1550,6 +1559,13 @@ abstract class Entity{
 			fn(EntityEventBroadcaster $broadcaster, array $recipients) => $broadcaster->onEntityRemoved($recipients, $this)
 		);
 		$this->hasSpawned = [];
+	}
+
+	/**
+	 * Returns the item that players will equip when middle-clicking on this entity.
+	 */
+	public function getPickedItem() : ?Item{
+		return null;
 	}
 
 	/**
