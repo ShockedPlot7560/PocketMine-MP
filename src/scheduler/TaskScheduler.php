@@ -184,11 +184,6 @@ class TaskScheduler{
 	}
 
 	private function isReady(int $currentTick) : bool{
-		if(!$this->queue->isEmpty()){
-			/** @phpstan-var TaskHandler<covariant Task> $current */
-			$current = $this->queue->current();
-			return $current->getNextRun() <= $currentTick;
-		}
-		return false;
+		return !$this->queue->isEmpty() && $this->queue->current()->getNextRun() <= $currentTick;
 	}
 }
